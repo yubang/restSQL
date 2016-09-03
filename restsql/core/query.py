@@ -1,0 +1,77 @@
+# coding:UTF-8
+
+
+"""
+模型映射对象封装
+@author: yubang
+"""
+
+
+from restsql.core import error_code
+
+
+class QueryModelMap:
+    def __init__(self, request):
+
+        self.code = 0
+        self.msg = 'ok'
+
+        self.model_name = None
+        self.command = None
+        self.where = "1"
+        self.where_value = []
+
+        self.__url_path = request.path
+        self.__get_args = request.query_string.decode("UTF-8")
+
+        self.__handle_args()
+        self.__handle_filter()
+
+    def __handle_args(self):
+        """
+        处理请求参数
+        :return:
+        """
+        arrs = self.__url_path.split("/")
+        length = len(arrs)
+
+        # 检查URL参数是否充足
+        if length < 1:
+            self.code, self.msg = error_code.URL_ERROR
+            return
+
+        # 提取模型名字
+        self.model_name = arrs[1]
+
+        if length < 2:
+            return
+
+        # 提取操作指令
+        if arrs[2].isdigit():
+            self.command = 'one'
+            self.__get_args = '&'.join([self.__get_args, "id=" + arrs[2]])
+        elif arrs[2] in ['all', 'some', 'one']:
+            self.command = arrs[2]
+        else:
+            self.code, self.msg = error_code.COMMAND_ERROR
+            return
+
+    def __handle_filter(self):
+        """
+        处理where条件
+        :return:
+        """
+        arrs = self.__get_args.split("&")
+        if not self.__get_args:
+            return
+
+        where = {}
+        for arr in arrs:
+            t = arr.split("=")
+            if len(t) != 2:
+                continue
+            where[t[0]] = t[1]
+        keys = where.keys()
+        self.where_value = [where[k] for k in keys]
+        where = ["%s=%s" % (k, "%s") for k in keys]
+        self.where = ' AND '.join(where)
