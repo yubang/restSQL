@@ -11,6 +11,8 @@ from restsql.core.query import QueryModelMap
 from restsql.core import error_code
 from restsql.core.handler import Handler
 from restsql.core.db_lib import Model
+from restsql.core.json_encoder import JsonEncoder
+from datetime import datetime
 import json
 
 
@@ -30,7 +32,7 @@ class BaseApp:
     @staticmethod
     def __make_response(code, msg, content):
         """制作response对象"""
-        return Response(json.dumps({"code": code, "msg": msg, "content": content}), 200, mimetype='application/json')
+        return Response(json.dumps({"code": code, "msg": msg, "content": content, "time": datetime.now()}, cls=JsonEncoder), 200, mimetype='application/json')
 
     def __handler(self, request):
         """各种http请求类型分发处理"""
