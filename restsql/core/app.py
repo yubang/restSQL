@@ -50,11 +50,14 @@ class BaseApp:
             r = Handler.query(q, model)
             return self.__make_response(r[0], r[1], r[2])
         elif request.method == 'POST':
-            return Response('{}', 200, mimetype='application/json')
+            r = Handler.insert_into(q, model)
+            return self.__make_response(r[0], r[1], r[2])
         elif request.method == 'DELETE':
-            return Response('{}', 200, mimetype='application/json')
+            r = Handler.delete(q, model)
+            return self.__make_response(r[0], r[1], r[2])
         elif request.method == 'PUT':
-            return Response('{}', 200, mimetype='application/json')
+            r = Handler.update(q, model)
+            return self.__make_response(r[0], r[1], r[2])
         else:
             return Response('Method not allowed', 405)
 

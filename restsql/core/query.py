@@ -20,12 +20,19 @@ class QueryModelMap:
         self.command = None
         self.where = "1"
         self.where_value = []
+        self.insert = None
+        self.insert_value = None
+        self.update = None
+        self.update_value = None
 
         self.__url_path = request.path
         self.__get_args = request.query_string.decode("UTF-8")
+        self.__form_args = request.form.copy()
+        self.__method = request.method
 
         self.__handle_args()
         self.__handle_filter()
+        self.__handler_form_args()
 
     def __handle_args(self):
         """
@@ -56,6 +63,13 @@ class QueryModelMap:
             self.code, self.msg = error_code.COMMAND_ERROR
             return
 
+        if self.__method == 'POST':
+            self.command = 'insert' if self.command != 'one' else "insert one"
+        elif self.__method == 'PUT':
+            self.command = 'update' if self.command != 'one' else "update one"
+        elif self.__method == 'DELETE':
+            self.command = 'delete' if self.command != 'one' else "delete one"
+
     def __handle_filter(self):
         """
         处理where条件
@@ -75,3 +89,17 @@ class QueryModelMap:
         self.where_value = [where[k] for k in keys]
         where = ["%s=%s" % (k, "%s") for k in keys]
         self.where = ' AND '.join(where)
+
+    def __handler_form_args(self):
+        """
+        处理在body里面的参数
+        :return:
+        """
+        keys = [k for k in self.__form_args]
+        # "() values()"
+        self.insert = "(" + ','.join(keys) + ") values(" + ','.join(["%s" for _ in self.__form_args]) + ")"
+        self.insert_value = [self.__form_args[k] for k in self.__form_args]
+
+        keys = ["%s = %s" % (k, "%s") for k in self.__form_args]
+        self.update = ','.join(keys)
+        self.update_value = self.insert_value

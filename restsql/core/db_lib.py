@@ -14,6 +14,11 @@ class Model:
         self.db_config = db_config
         self.table_name = table_name
 
+    @staticmethod
+    def __print_sql(sql):
+        """打印执行的sql"""
+        print("执行了sql：", sql)
+
     def get_db_connection(self):
         """
         获取新的数据库连接，请注意自己关闭连接
@@ -60,6 +65,9 @@ class Model:
         else:
             cursor.execute(sql, params)
 
+        # 记录执行的sql
+        self.__print_sql(cursor._executed)
+
         objs = cursor.fetchall()
         cursor.close()
         self.close_db_connection(conn)
@@ -78,6 +86,9 @@ class Model:
         cursor = conn.cursor()
         cursor.execute(sql, params)
 
+        # 记录执行的sql
+        self.__print_sql(cursor._executed)
+
         count = cursor.rowcount
         conn.commit()
         cursor.close()
@@ -94,6 +105,9 @@ class Model:
         conn = self.get_db_connection()
         cursor = conn.cursor()
         cursor.execute(sql, params)
+
+        # 记录执行的sql
+        self.__print_sql(cursor._executed)
 
         table_id = int(cursor.lastrowid)
         conn.commit()
