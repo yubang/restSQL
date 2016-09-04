@@ -1,7 +1,7 @@
 # restSQL
 ### restSQL是一个基于python实现的将数据库转换为 REST 风格的 Web 服务
 
-创作该项目源自于看了美团的一篇博客(http://tech.meituan.com/koa-restql.html "http://tech.meituan.com/koa-restql.html"） ,但是美团给出的是基于node的实现版本，所以使用python来实现该功能。
+创作该项目源自于看了美团的一篇博客 [http://tech.meituan.com/koa-restql.html](http://tech.meituan.com/koa-restql.html "http://tech.meituan.com/koa-restql.html"） ,但是美团给出的是基于node的实现版本，所以使用python来实现该功能。
 
 ### 项目开发环境
 
