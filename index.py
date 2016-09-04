@@ -10,6 +10,7 @@ from restsql.core.app import BaseApp
 
 
 class Config:
+    """mysql配置"""
     db_name = 'test'
     db_host = '127.0.0.1'
     db_port = 3306
@@ -18,7 +19,9 @@ class Config:
 
 
 app = BaseApp()
+# 表名和模型名字映射，第一个是模型名字
 app.update_model({"user": 'user'})
+# 配置数据库信息
 app.set_db_config(Config())
 
 if __name__ == '__main__':
