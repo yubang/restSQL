@@ -43,6 +43,6 @@
 
 | HTTP请求方法 | 请求的URL | 功能 | 备注 |
 | --- | --- | --- | --- |
-| DELETE | /<模型别名>/<主键ID> | 删除ID为XXX一条数据| GET参数是where条件，post参数为要修改的数据内容 |
-| DELETE | /<模型别名>/one | 删除符合条件的一条数据| GET参数是where条件，post参数为要修改的数据内容 |
-| DELETE | /<模型别名>/all | 删除所有符合条件数据| GET参数是where条件，post参数为要修改的数据内容 |
+| DELETE | /<模型别名>/<主键ID> | 删除ID为XXX一条数据| GET参数是where条件 |
+| DELETE | /<模型别名>/one | 删除符合条件的一条数据| GET参数是where条件 |
+| DELETE | /<模型别名>/all | 删除所有符合条件数据| GET参数是where条件 |
