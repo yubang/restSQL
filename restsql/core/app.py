@@ -12,7 +12,7 @@ from restsql.core import error_code
 from restsql.core.handler import Handler
 from restsql.core.db_lib import Model
 from restsql.core.json_encoder import JsonEncoder
-from datetime import datetime
+# from datetime import datetime
 import json
 
 
@@ -30,9 +30,15 @@ class BaseApp:
         return r(environ, start_response)
 
     @staticmethod
-    def __make_response(code, msg, content):
+    def __make_response(code, msg, content, status_code=200):
         """制作response对象"""
-        return Response(json.dumps({"code": code, "msg": msg, "content": content, "time": datetime.now()}, cls=JsonEncoder), 200, mimetype='application/json')
+        # return Response(json.dumps({"code": code, "msg": msg, "content": content, "time": datetime.now()}, cls=JsonEncoder), 200, mimetype='application/json')
+        if content:
+            r = Response(json.dumps(content, cls=JsonEncoder), mimetype="application/json")
+        else:
+            r = Response("{}", mimetype="application/json")
+        r.status_code = status_code
+        return r
 
     def __handler(self, request):
         """各种http请求类型分发处理"""
@@ -53,7 +59,7 @@ class BaseApp:
             return self.__make_response(r[0], r[1], r[2])
         elif request.method == 'POST':
             r = Handler.insert_into(q, model)
-            return self.__make_response(r[0], r[1], r[2])
+            return self.__make_response(r[0], r[1], r[2], status_code=201)
         elif request.method == 'DELETE':
             r = Handler.delete(q, model)
             return self.__make_response(r[0], r[1], r[2])
