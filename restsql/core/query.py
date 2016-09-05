@@ -43,25 +43,23 @@ class QueryModelMap:
         length = len(arrs)
 
         # 检查URL参数是否充足
-        if length < 1:
+        if length < 2:
             self.code, self.msg = error_code.URL_ERROR
             return
 
         # 提取模型名字
         self.model_name = arrs[1]
 
-        if length < 2:
-            return
-
         # 提取操作指令
-        if arrs[2].isdigit():
+        if length < 3:
+            self.command = 'all'
+        elif arrs[2].isdigit():
             self.command = 'one'
             self.__get_args = '&'.join([self.__get_args, "id=" + arrs[2]])
         elif arrs[2] in ['all', 'some', 'one']:
             self.command = arrs[2]
         else:
-            self.code, self.msg = error_code.COMMAND_ERROR
-            return
+            self.command = 'all'
 
         if self.__method == 'POST':
             self.command = 'insert' if self.command != 'one' else "insert one"
