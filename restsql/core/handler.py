@@ -47,6 +47,8 @@ class Handler:
         sql = "insert into " + model.table_name + query_mode_map.insert
         try:
             r = model.insert(sql, query_mode_map.insert_value)
+            sql = "select * from " + model.table_name + " where id = %s limit 1;"
+            r = model.query_for_dict(sql, [r])
         except Exception:
             traceback.print_exc()
             return error_code.DB_ERROR[0], error_code.DB_ERROR[1], None
@@ -64,7 +66,9 @@ class Handler:
         if query_mode_map.command == 'update one':
             sql += ' limit 1;'
         try:
-            r = model.update(sql, query_mode_map.update_value)
+            query_mode_map.command = "one" if query_mode_map.command == 'update one' else 'all'
+            r = cls.query(query_mode_map, model)[2]
+            model.update(sql, query_mode_map.update_value)
         except Exception:
             traceback.print_exc()
             return error_code.DB_ERROR[0], error_code.DB_ERROR[1], None

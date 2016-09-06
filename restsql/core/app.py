@@ -62,7 +62,7 @@ class BaseApp:
             return self.__make_response(r[0], r[1], r[2], status_code=201)
         elif request.method == 'DELETE':
             r = Handler.delete(q, model)
-            return self.__make_response(r[0], r[1], r[2])
+            return self.__make_response(r[0], r[1], r[2], status_code=204)
         elif request.method == 'PUT':
             r = Handler.update(q, model)
             return self.__make_response(r[0], r[1], r[2])
