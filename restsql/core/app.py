@@ -17,14 +17,34 @@ import json
 
 
 class BaseApp:
-    def __init__(self):
+    def __init__(self, wsgi_app=None):
         self.wsgi = self.__main
         self.__model_dict = {}
         self.db_config = None
+        self.__other_wsgi = self.__default_other_wsgi if not wsgi_app else wsgi_app
+        self.__handler_prefix_url = '/'
+
+    def __call__(self, environ, start_response):
+        return self.__main(environ, start_response)
+
+    @staticmethod
+    def __default_other_wsgi(environ, start_response):
+        """默认的第三方处理"""
+        r = Response("Not Found!", 404)
+        return r(environ, start_response)
+
+    def __check_user_other_framework(self, url):
+        """检查是否使用第三方框架处理"""
+        return not url.startswith(self.__handler_prefix_url)
 
     def __main(self, environ, start_response):
         """wsgi入口函数"""
         request = Request(environ)
+
+        # 判断是否使用第三方框架处理
+        if self.__check_user_other_framework(request.path):
+            return self.__other_wsgi(environ, start_response)
+
         r = self.__handler(request)
         r.headers['server'] = 'resetSQL'
         return r(environ, start_response)
@@ -42,7 +62,7 @@ class BaseApp:
 
     def __handler(self, request):
         """各种http请求类型分发处理"""
-        q = QueryModelMap(request)
+        q = QueryModelMap(request, request.path.replace(self.__handler_prefix_url, ""))
 
         # 出现解析错误
         if q.code != 0:
@@ -84,3 +104,15 @@ class BaseApp:
         :return:
         """
         self.db_config = db_config
+
+    def set_rest_sql_handler_prefix_url(self, prefix_url):
+        """
+        设置restSQL处理的前缀
+        :param prefix_url: 处理前缀
+        :return:
+        """
+        self.__handler_prefix_url = prefix_url
+
+    def set_other_wsgi(self, wsgi):
+        """设置第三方wsgi处理接口"""
+        self.__other_wsgi = wsgi

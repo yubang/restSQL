@@ -11,7 +11,7 @@ from restsql.core import error_code
 
 
 class QueryModelMap:
-    def __init__(self, request):
+    def __init__(self, request, api_url):
 
         self.code = 0
         self.msg = 'ok'
@@ -25,7 +25,7 @@ class QueryModelMap:
         self.update = None
         self.update_value = None
 
-        self.__url_path = request.path
+        self.__url_path = api_url if api_url.startswith('/') else '/' + api_url
         self.__get_args = request.query_string.decode("UTF-8")
         self.__form_args = request.form.copy()
         self.__method = request.method
