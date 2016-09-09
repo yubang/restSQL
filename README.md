@@ -9,6 +9,11 @@
  2. 基于Werkzeug
  3. 暂时只支持mysql
 
+
+### 安装本项目
+pip install https://github.com/yubang/restSQL
+
+
 ### 第一个hello world！
 
 请查看index.py的代码，就是那么简单
