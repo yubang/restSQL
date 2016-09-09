@@ -11,8 +11,10 @@
 
 
 ### 安装本项目
-pip install https://github.com/yubang/restSQL
+pip install git+https://github.com/yubang/restSQL
 
+### 卸载本项目
+pip uninstall restSQL
 
 ### 第一个hello world！
 
