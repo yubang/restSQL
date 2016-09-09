@@ -12,7 +12,8 @@ from restsql.core import error_code
 from restsql.core.handler import Handler
 from restsql.core.db_lib import Model
 from restsql.core.json_encoder import JsonEncoder
-# from datetime import datetime
+from restsql.core.power import PowerManager
+import re
 import json
 
 
@@ -23,6 +24,7 @@ class BaseApp:
         self.db_config = None
         self.__other_wsgi = self.__default_other_wsgi if not wsgi_app else wsgi_app
         self.__handler_prefix_url = '/'
+        self.__power = {}
 
     def __call__(self, environ, start_response):
         return self.__main(environ, start_response)
@@ -52,7 +54,6 @@ class BaseApp:
     @staticmethod
     def __make_response(code, msg, content, status_code=200):
         """制作response对象"""
-        # return Response(json.dumps({"code": code, "msg": msg, "content": content, "time": datetime.now()}, cls=JsonEncoder), 200, mimetype='application/json')
         if content:
             r = Response(json.dumps(content, cls=JsonEncoder), mimetype="application/json")
         else:
@@ -62,7 +63,13 @@ class BaseApp:
 
     def __handler(self, request):
         """各种http请求类型分发处理"""
-        q = QueryModelMap(request, request.path.replace(self.__handler_prefix_url, ""))
+        q = QueryModelMap(request, re.sub('^'+self.__handler_prefix_url, '', request.path))
+
+        # 检查权限
+        Power = self.__power.get(q.model_name, PowerManager)
+        power = Power(request)
+        if not power.check_power():
+            return Response("forbidden!", status=403, mimetype='text/plain')
 
         # 出现解析错误
         if q.code != 0:
@@ -71,7 +78,7 @@ class BaseApp:
         # 判断模型是否存在
         model_name = self.__model_dict.get(q.model_name, None)
         if not model_name:
-            return self.__make_response(error_code.MODEL_NAME_ERROR[0], error_code.MODEL_NAME_ERROR[1], None)
+            return Response('not found!', status=404, mimetype='text/plain')
 
         model = Model(self.db_config, model_name)
         if request.method == 'GET':
@@ -116,3 +123,11 @@ class BaseApp:
     def set_other_wsgi(self, wsgi):
         """设置第三方wsgi处理接口"""
         self.__other_wsgi = wsgi
+
+    def set_power_manager(self, power_manager_dict):
+        """
+        设置权限管理
+        :param power_manager_dict: 模型权限管理映射字典
+        :return:
+        """
+        self.__power = power_manager_dict
